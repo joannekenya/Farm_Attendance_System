@@ -1,0 +1,126 @@
+﻿@model FARM_ATTENDANCE_SYSTEM.Models.User
+
+@{
+    ViewData["Title"] = "Create";
+    Layout = "~/Views/Shared/_Dashboard.cshtml";
+}
+
+<div class="container mt-4">
+    <div class="page-wrapper">
+        <div class="content">
+            <h4 class="text-dark font-weight-bold text-center">Add New User</h4>
+            <hr />
+
+            <div class="card shadow">
+                <div class="card-body">
+                    @if (!ViewData.ModelState.IsValid && ViewData.ModelState.ErrorCount > 0)
+                    {
+                        <div class="alert alert-danger">
+                            @foreach (var modelError in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                            {
+                                <div>@modelError.ErrorMessage</div>
+                            }
+                        </div>
+                    }
+
+                    <form asp-action="Create" method="post">
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                        <div class="row">
+                            <div class="form-group col-md-6">
+                                <label asp-for="FullName">Full Name</label>
+                                <input asp-for="FullName" class="form-control" />
+                                <span asp-validation-for="FullName" class="text-danger"></span>
+                            </div>
+
+                            <div class="form-group col-md-6">
+                                <label asp-for="Email">Email</label>
+                                <input asp-for="Email" class="form-control" />
+                                <span asp-validation-for="Email" class="text-danger"></span>
+                            </div>
+
+                            <div class="form-group col-md-6">
+                                <label asp-for="EmailConfirmed">Email Confirmed</label>
+                                <div class="form-check mt-2">
+                                    <input asp-for="EmailConfirmed" class="form-check-input" />
+                                    <label class="form-check-label" for="EmailConfirmed">Yes</label>
+                                </div>
+                                <span asp-validation-for="EmailConfirmed" class="text-danger"></span>
+                            </div>
+
+                            <div class="form-group col-md-6">
+                                <label asp-for="UserName">Username</label>
+                                <input asp-for="UserName" class="form-control" />
+                                <span asp-validation-for="UserName" class="text-danger"></span>
+                            </div>
+
+                            <div class="form-group col-md-6">
+                                <label asp-for="PhoneNo">Phone Number</label>
+                                <input asp-for="PhoneNo" class="form-control" />
+                                <span asp-validation-for="PhoneNo" class="text-danger"></span>
+                            </div>
+
+                            <!-- Password -->
+                            <div class="form-group col-md-6">
+                                <label>Password</label>
+                                <div class="input-group">
+                                    <input name="Password" id="password" type="password" class="form-control" placeholder="Enter password" oninput="validatePasswords()" required />
+                                    <button type="button" class="btn btn-outline-secondary" onclick="togglePassword('password', 'togglePasswordIcon')">
+                                        <i class="bi bi-eye-slash" id="togglePasswordIcon"></i>
+                                    </button>
+                                </div>
+                                <span class="text-danger">@ViewData["PasswordError"]</span>
+                            </div>
+
+                            <!-- Confirm Password -->
+                            <div class="form-group col-md-6">
+                                <label>Confirm Password</label>
+                                <div class="input-group">
+                                    <input name="ConfirmPassword" id="confirmPassword" type="password" class="form-control" placeholder="Confirm password" oninput="validatePasswords()" required />
+                                    <button type="button" class="btn btn-outline-secondary" onclick="togglePassword('confirmPassword', 'toggleConfirmIcon')">
+                                        <i class="bi bi-eye-slash" id="toggleConfirmIcon"></i>
+                                    </button>
+                                </div>
+                                <span id="passwordMatchMsg" class="text-danger"></span>
+                            </div>
+
+
+                            <input type="hidden" asp-for="UserGroup" value="User" />
+                        </div>
+
+                        <div class="form-group mt-3 d-flex gap-2">
+                            <input type="submit" value="Save" class="btn btn-primary" />
+                            <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function togglePassword(inputId, iconId) {
+        const input = document.getElementById(inputId);
+        const icon = document.getElementById(iconId);
+        const isHidden = input.type === "password";
+
+        input.type = isHidden ? "text" : "password";
+        icon.classList.toggle("bi-eye");
+        icon.classList.toggle("bi-eye-slash");
+    }
+
+    function validatePasswords() {
+        const password = document.getElementById("password").value;
+        const confirm = document.getElementById("confirmPassword").value;
+        const message = document.getElementById("passwordMatchMsg");
+
+        if (confirm === "") {
+            message.textContent = "";
+        } else if (password !== confirm) {
+            message.textContent = "Passwords do not match";
+        } else {
+            message.textContent = "";
+        }
+    }
+</script>

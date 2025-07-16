@@ -1,0 +1,268 @@
+﻿@model FARM_ATTENDANCE_SYSTEM.Models.Farmers
+@using Syncfusion.EJ2
+@using System.Net.Http
+@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor HttpContextAccessor
+
+@{
+    ViewData["Title"] = "Create";
+    Layout = "~/Views/Shared/_Dashboard.cshtml";
+    var UserId = HttpContextAccessor?.HttpContext?.Session.GetString("UserName1");
+}
+<style>
+    .table-green-header {
+        background-color: #4CAF50 !important;
+        color: white !important;
+    }
+
+        .table-green-header th {
+            background-color: #4CAF50 !important;
+            color: white !important;
+        }
+</style>
+
+<div class="container-fluid">
+    <div class="page-wrapper">
+        <div class="content">
+            <h4 class="card-header mt-4" style="background-color: #4CAF50; color: black;">
+                Register Farmers
+            </h4>
+            <hr />
+
+            <div class="card card-default">
+                <div class="card-body">
+                    <!-- Main Create Farmer Form -->
+                    <form asp-action="Create" method="post" enctype="multipart/form-data">
+                        @Html.AntiForgeryToken()
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                        <div class="row">
+                            <div class="col-md-3 mb-3">
+                                <label>Farmer Name</label>
+                                <input asp-for="FarmerName" class="form-control" id="FarmerName" />
+                                <span asp-validation-for="FarmerName" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-3 mb-3">
+                                <label>Phone Number</label>
+                                <input asp-for="FPhoneNo" class="form-control" id="FPhoneNo"
+                                       maxlength="10"
+                                       onkeypress="return isNumberKey(event)"
+                                       onpaste="return false"
+                                       autocomplete="off"
+                                       inputmode="numeric" />
+                                <span asp-validation-for="FPhoneNo" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-3 mb-3">
+                                <label>ID NO</label>
+                                <input asp-for="IDNO" class="form-control" id="IDNO" />
+                                <span asp-validation-for="IDNO" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-3 mb-3">
+                                <label>Gender</label>
+                                <select asp-for="GENDER" class="form-control" id="GENDER">
+                                    <option value="">-- Select Gender --</option>
+                                    <option value="M">M</option>
+                                    <option value="F">F</option>
+                                </select>
+                                <span asp-validation-for="GENDER" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-3 mb-3">
+                                <label>FPO/COOP GROUP</label>
+                                <input asp-for="FPO_COOP_Group" class="form-control" id="FPO_COOP_Group" />
+                                <span asp-validation-for="FPO_COOP_Group" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-3 mb-3">
+                                <label>Amount</label>
+                                <input asp-for="AMOUNT" class="form-control" type="number" id="AMOUNT" />
+                                <span asp-validation-for="AMOUNT" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-3 mb-3">
+                                <label>Age</label>
+                                <input asp-for="AGE" class="form-control" type="number" id="AGE" />
+                                <span asp-validation-for="AGE" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-3 mb-3">
+                                <label>Venue</label>
+                                <input asp-for="VENUE" class="form-control" id="VENUE" />
+                                <span asp-validation-for="VENUE" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-3 mb-3">
+                                <label>County</label>
+                                <select asp-for="County" class="form-control" id="county_nameDropdown">
+                                    <option value="">Select County</option>
+                                    @if (ViewBag.county_name != null)
+                                    {
+                                        foreach (var county in ViewBag.county_name)
+                                        {
+                                            <option value="@county">@county</option>
+                                        }
+                                    }
+                                </select>
+                                <span asp-validation-for="County" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-3 mb-3">
+                                <label>Sub County</label>
+                                <select asp-for="SubCounties" class="form-control" id="subCountyDropdown">
+                                    <option value="">Select Sub County</option>
+                                    @if (ViewBag.sub_counties != null)
+                                    {
+                                        foreach (var subCounty in ViewBag.sub_counties)
+                                        {
+                                            <option value="@subCounty">@subCounty</option>
+                                        }
+                                    }
+                                </select>
+                                <span asp-validation-for="SubCounties" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-3 mb-3">
+                                <label>Field Coordinator</label>
+                                <input asp-for="FIELDCOORDINATOR" class="form-control" id="FIELDCOORDINATOR" />
+                                <span asp-validation-for="FIELDCOORDINATOR" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-12 mt-3">
+                                <button type="submit" name="action" value="Save" class="btn btn-success me-2">Save</button>
+                                <button type="submit" name="action" value="Update" class="btn btn-warning">Update</button>
+                            </div>
+
+                        </div>
+                    </form>
+
+                    <!-- Excel Import Form -->
+                    <form method="post" enctype="multipart/form-data" asp-controller="Farmers" asp-action="ImportExcel" id="excelImportForm" class="mt-4">
+                        <div class="form-group">
+                            <label for="excelFile">Import Excel</label>
+                            <input type="file" name="file" id="excelFile" class="form-control" accept=".xlsx,.xls" />
+                        </div>
+                    </form>
+
+                    <!-- Display Sample Farmers -->
+                    <div class="card-header mt-4">
+                        <table class="table table-bordered">
+                            <thead class="table-green-header">
+                                <tr>
+                                    <th>&nbsp;</th>
+                                    <th>Name</th>
+                                    <th>Phone</th>
+                                    <th>ID</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (ViewBag.Farmers != null)
+                                {
+                                    foreach (var farmer in ((IEnumerable<FARM_ATTENDANCE_SYSTEM.Models.Farmers>)ViewBag.Farmers).Take(5))
+                                    {
+                                        <tr>
+                                            <td>
+                                                <button class="btn btn-info selectFarmerBtn"
+                                                        data-farmer-name="@farmer.FarmerName"
+                                                        data-phone="@farmer.FPhoneNo"
+                                                        data-id="@farmer.IDNO"
+                                                        data-gender="@farmer.GENDER"
+                                                        data-fpo="@farmer.FPO_COOP_Group"
+                                                        data-amount="@farmer.AMOUNT"
+                                                        data-age="@farmer.AGE"
+                                                        data-venue="@farmer.VENUE"
+                                                        data-county="@farmer.County"
+                                                        data-subcounty="@farmer.SubCounties"
+                                                        data-coordinator="@farmer.FIELDCOORDINATOR">
+                                                    Select
+                                                </button>
+                                            </td>
+                                            <td>@farmer.FarmerName</td>
+                                            <td>@farmer.FPhoneNo</td>
+                                            <td>@farmer.IDNO</td>
+                                        </tr>
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript -->
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const selectFarmerBtns = document.querySelectorAll('.selectFarmerBtn');
+        selectFarmerBtns.forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                const farmer = this.dataset;
+                document.getElementById("FarmerName").value = farmer.farmerName;
+                document.getElementById("FPhoneNo").value = farmer.phone;
+                document.getElementById("IDNO").value = farmer.id;
+                document.getElementById("GENDER").value = farmer.gender;
+                document.getElementById("FPO_COOP_Group").value = farmer.fpo;
+                document.getElementById("AMOUNT").value = farmer.amount;
+                document.getElementById("AGE").value = farmer.age;
+                document.getElementById("VENUE").value = farmer.venue;
+                document.getElementById("county_nameDropdown").value = farmer.county;
+                document.getElementById("subCountyDropdown").value = farmer.subcounty;
+                document.getElementById("FIELDCOORDINATOR").value = farmer.coordinator;
+            });
+        });
+
+        const countyDropdown = document.getElementById("county_nameDropdown");
+        const subCountyDropdown = document.getElementById("subCountyDropdown");
+
+        countyDropdown?.addEventListener("change", function () {
+            const selectedCountyName = this.value;
+            subCountyDropdown.innerHTML = '<option value="">Select Sub County</option>';
+
+            if (selectedCountyName) {
+                fetch(`/Farmers/GetSubCounties?countyName=${encodeURIComponent(selectedCountyName)}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        data.forEach(subCounty => {
+                            const option = document.createElement("option");
+                            option.value = subCounty.sub_counties;
+                            option.textContent = subCounty.sub_counties;
+                            subCountyDropdown.appendChild(option);
+                        });
+                    })
+                    .catch(error => console.error("Error:", error));
+            }
+        });
+    });
+</script>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('#county_nameDropdown').select2({
+                placeholder: "Select County",
+                allowClear: true,
+                width: '100%'
+            });
+
+            $('#subCountyDropdown').select2({
+                placeholder: "Select Sub County",
+                allowClear: true,
+                width: '100%'
+            });
+        });
+    </script>
+}
+<script>
+    function isNumberKey(evt) {
+        var charCode = evt.which ? evt.which : evt.keyCode;
+        // Allow only digits (0–9)
+        if (charCode < 48 || charCode > 57)
+            return false;
+        return true;
+    }
+</script>

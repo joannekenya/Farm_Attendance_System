@@ -1,0 +1,51 @@
+@model IEnumerable<FARM_ATTENDANCE_SYSTEM.Models.Roles>
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Dashboard.cshtml";
+}
+
+<!-- Add custom style -->
+<style>
+    .main-content {
+        margin-left: 250px; /* Match sidebar width */
+        padding: 20px;
+        width: calc(100% - 250px); /* Prevent overflow */
+    }
+</style>
+
+<div class="main-content">
+    <!-- Modified container -->
+    <div class="container-fluid">
+        <h4>UserGroup</h4>
+        <hr />
+        <div class="card card-default">
+            <div class="card-header">
+                <p>
+                    <a asp-action="Create" class="btn btn-primary">Create New</a>
+                </p>
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>@Html.DisplayNameFor(model => model.UserGroup)</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>@Html.DisplayFor(modelItem => item.UserGroup)</td>
+                                <td>
+                                    <a asp-action="Edit" asp-route-id="@item.RoleId" class="btn btn-sm btn-warning">Edit</a>
+                                    <a asp-action="Details" asp-route-id="@item.RoleId" class="btn btn-sm btn-info">Details</a>
+                                    <a asp-action="Delete" asp-route-id="@item.RoleId" class="btn btn-sm btn-danger">Delete</a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

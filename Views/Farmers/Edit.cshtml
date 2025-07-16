@@ -1,0 +1,157 @@
+﻿@model FARM_ATTENDANCE_SYSTEM.Models.Farmers
+@using Syncfusion.EJ2
+
+@using System.Net.Http
+
+@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor HttpContextAccessor
+
+@{
+    ViewData["Title"] = "Edit";
+    Layout = "~/Views/Shared/_Dashboard.cshtml";
+}
+<div class="container-fluid">
+            <h4>List Of Farmers.</h4>
+            <hr />
+            <div class="card card-default">
+                <div class="card-header">
+                    <form asp-action="Edit" enctype="multipart/form-data">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                        <input type="hidden" asp-for="FarmerId" />
+                       
+                            <div class="form-group">
+                                <label asp-for="FarmerId" class="control-label"></label>
+                                <input asp-for="FarmerId" class="form-control" />
+                                <span asp-validation-for="FarmerId" class="text-danger"></span>
+                            </div>
+                        <div class="form-group">
+                            <label asp-for="CreatedAt" class="control-label"></label>
+                            <input asp-for="CreatedAt" class="form-control" />
+                            <span asp-validation-for="CreatedAt" class="text-danger"></span>
+                        </div>
+                            <div class="form-group">
+                                <label asp-for="FarmerName" class="control-label"></label>
+                                <input asp-for="FarmerName" class="form-control" />
+                                <span asp-validation-for="FarmerName" class="text-danger"></span>
+                            </div>
+                        <div class="form-group">
+                            <label asp-for="FPhoneNo" class="control-label"></label>
+                            <input asp-for="FPhoneNo" class="form-control" />
+                            <span asp-validation-for="FPhoneNo" class="text-danger"></span>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="IDNO" class="control-label"></label>
+                            <input asp-for="IDNO" class="form-control" />
+                            <span asp-validation-for="IDNO" class="text-danger"></span>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="GENDER" class="control-label"></label>
+                            <input asp-for="GENDER" class="form-control" />
+                            <span asp-validation-for="GENDER" class="text-danger"></span>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="FPO_COOP_Group" class="control-label"></label>
+                            <input asp-for="FPO_COOP_Group" class="form-control" />
+                            <span asp-validation-for="FPO_COOP_Group" class="text-danger"></span>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="AMOUNT" class="control-label"></label>
+                            <input asp-for="AMOUNT" class="form-control" />
+                            <span asp-validation-for="AMOUNT" class="text-danger"></span>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="AGE" class="control-label"></label>
+                            <input asp-for="AGE" class="form-control" />
+                            <span asp-validation-for="AGE" class="text-danger"></span>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="VENUE" class="control-label"></label>
+                            <input asp-for="VENUE" class="form-control" />
+                            <span asp-validation-for="VENUE" class="text-danger"></span>
+                        </div>
+
+                      
+                       
+                       
+                <div class="col-md-3">
+                    <br />
+                    <label>County</label>
+                    <select asp-for="County" class="form-control" id="county_nameDropdown">
+                        <option value="">Select county_name</option>
+                        @foreach (var county_name in ViewBag.county_name)
+                        {
+                            <option value="@county_name.Id">@county_name.county_name</option>
+                        }
+                    </select>
+                    <span asp-validation-for="County" class="text-danger"></span>
+                </div>
+
+
+
+                <div class="col-md-3">
+                    <br />
+                    <label>Sub County</label>
+                    <select asp-for="SubCounties" class="form-control" id="subCountyDropdown">
+                        <option value="">Select SubCounty</option>
+                        @foreach (var subCounty in ViewBag.sub_counties)
+                        {
+                            <option value="@subCounty.Id">@subCounty.sub_counties</option>
+                        }
+                    </select>
+                    <span asp-validation-for="SubCounties" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="FIELDCOORDINATOR" class="control-label"></label>
+                    <input asp-for="FIELDCOORDINATOR" class="form-control" />
+                    <span asp-validation-for="FIELDCOORDINATOR" class="text-danger"></span>
+                </div>
+                        <br />
+                        <div class="row">
+                            <div class="col-md-3">
+                                <input type="submit" value="Save" class="btn btn-primary" />
+                            </div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            <div class="col-md-7">
+                                <a asp-action="Index1" class="btn btn-primary">Back to List</a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+
+    
+
+<script>
+             document.addEventListener("DOMContentLoaded", function () {
+        // Get the dropdown elements by their ID
+        var countryDropdownElement = document.getElementById("country");
+        var subCountyDropdownElement = document.getElementById("subcounty");
+
+        // Check if both elements exist
+        if (countryDropdownElement && subCountyDropdownElement) {
+            // Ensure ej2_instances has elements before accessing the first instance
+            var countryDropdown = countryDropdownElement.ej2_instances.length > 0 ? countryDropdownElement.ej2_instances[0] : null;
+            var subCountyDropdown = subCountyDropdownElement.ej2_instances.length > 0 ? subCountyDropdownElement.ej2_instances[0] : null;
+
+            // If both dropdowns are initialized, proceed with setting up the event
+            if (countryDropdown && subCountyDropdown) {
+                // Setup the change event for the country dropdown
+                countryDropdown.addEventListener('change', function () {
+                    // Create a query to filter subcounty options based on selected county
+                    var tempQuery = new ej.data.Query().where('StrCountyId', 'equal', countryDropdown.value);
+                    subCountyDropdown.query = tempQuery;
+                    subCountyDropdown.text = null;  // Clear the text to force a refresh
+                    subCountyDropdown.dataBind();   // Rebind data to the subcounty dropdown
+                });
+            } else {
+                console.error("Syncfusion dropdown instances not initialized properly.");
+            }
+        } else {
+            console.error("Dropdown elements not found.");
+        }
+    });
+
+
+
+</script>

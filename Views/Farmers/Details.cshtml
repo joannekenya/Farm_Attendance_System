@@ -1,0 +1,95 @@
+﻿@model FARM_ATTENDANCE_SYSTEM.Models.Farmers
+
+@{
+    ViewData["Title"] = "Details";
+    Layout = "~/Views/Shared/_Dashboard.cshtml";
+}
+<div class="container-fluid">
+            <h4>Farmers Details.</h4>
+            <hr />
+            <div class="card card-default">
+                <div class="card-header">
+                    <h4 style="font-size:xx-large;"><b>Farmer Details</b>.</h4>
+                    <br />
+                    <hr style="height:10px;background-color:red" />
+    <dl class="row">
+        <dt class = "col-sm-2">
+                            FarmerName
+        </dt>
+        <dd class = "col-sm-10">
+                            FarmerName
+        </dd>
+        <dt class = "col-sm-2">
+                            FPhoneNo
+        </dt>
+        <dd class = "col-sm-10">
+                            FPhoneNo
+        </dd>
+        <dt class = "col-sm-2">
+                            IDNO
+        </dt>
+        <dd class = "col-sm-10">
+                            IDNO
+        </dd>
+        <dt class = "col-sm-2">
+                            GENDER
+        </dt>
+        <dd class = "col-sm-10">
+                            GENDER
+        </dd>
+        <dt class = "col-sm-2">
+                            FPO_COOP_Group
+        </dt>
+        <dd class = "col-sm-10">
+                            FPO_COOP_Group
+        </dd>
+        <dt class = "col-sm-2">
+                            AMOUNT
+        </dt>
+        <dd class = "col-sm-10">
+                            AMOUNT
+        </dd>
+        <dt class = "col-sm-2">
+                            AGE
+        </dt>
+        <dd class = "col-sm-10">
+                            AGE
+        </dd>
+        <dt class = "col-sm-2">
+                            VENUE
+        </dt>
+        <dd class = "col-sm-10">
+                            VENUE
+        </dd>
+
+                <dt class="col-sm-2">
+                    County
+                </dt>
+                <dd class="col-sm-10">
+                    @ViewBag.county_name
+                </dd>
+                <dt class="col-sm-2">
+                            Sub county
+                        </dt>
+                        <dd class="col-sm-10">
+                            @ViewBag.subcountyname
+                        </dd>
+
+                <dt class="col-sm-2">
+                    FIELDCOORDINATOR
+                </dt>
+                <dd class="col-sm-10">
+                    FIELDCOORDINATOR
+                </dd>
+
+
+            </dl>
+</div>
+                <div style="margin-left:40px">
+                    <a asp-action="Edit" class="btn btn-success" asp-route-id="@Model.FarmerId">Edit</a> |
+                    <a asp-action="Index" class="btn btn-success">Back to List</a>
+                </div>
+                <br /><br />
+            </div>
+        </div>
+  

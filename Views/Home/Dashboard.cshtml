@@ -1,0 +1,186 @@
+﻿@{
+    ViewData["Title"] = "Dashboard";
+    Layout = "~/Views/Shared/_Dashboard.cshtml";
+}
+
+<style>
+    body {
+        background: url('@Url.Content("~/images/amtecc.jpg")') no-repeat center center fixed;
+        background-size: cover;
+        margin: 0;
+        padding: 0;
+        font-family: Arial, sans-serif;
+    }
+</style>
+
+<div class="page-wrapper">
+    <h1 style="color:orange; margin-top:40px; font-size:50px;"> ADMIN DASHBOARD</h1>
+    <hr style="background-color:#009100; height:1px; margin-top:6px;" />
+
+    <!-- Total Farmers Cards -->
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card mb-4" style="border-radius:5px; background-color:blue;">
+                <div class="card-body">
+                    <div class="text-xs font-weight-bold text-uppercase mb-1">
+                        <b style="color:white;">Total Farmers</b>
+                    </div>
+                    <div class="h5 mb-0 font-weight-bold text-white">
+                        @string.Format("{0:N0}", ViewBag.allListofFarmers)
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card mb-4" style="border-radius:5px; background-color:orangered;">
+                <div class="card-body">
+                    <div class="text-xs font-weight-bold text-uppercase mb-1">
+                        <b style="color:white;">Audit Farmers</b>
+                    </div>
+                    <div class="h5 mb-0 font-weight-bold text-white">
+                        @string.Format("{0:N0}", ViewBag.allFarmersAudit)
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+   
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <strong>Farmers Overview</strong>
+                </div>
+                <div class="card-body">
+                    <canvas id="farmersChart" height="100"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const ctx = document.getElementById('farmersChart').getContext('2d');
+
+            const chart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Total Farmers', 'Audit Farmers'],
+                    datasets: [{
+                        label: 'Count',
+                        data: [
+                            @ViewBag.allListofFarmers ?? 0,
+                            @ViewBag.allFarmersAudit ?? 0
+                        ],
+                        backgroundColor: ['#007bff', '#ff4500'], // blue and orangered
+                        borderRadius: 8,
+                        borderSkipped: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        tooltip: {
+                            enabled: true
+                        },
+                        legend: {
+                            display: false
+                        },
+                        title: {
+                            display: true,
+                            text: 'Total vs Audit Farmers',
+                            font: { size: 18 }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                precision: 0
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+    <!-- Gender Pie Chart -->
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card mb-4" style="border-radius:5px; background-color:green;">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-md-6">
+                            <div class="text-xs font-weight-bold text-uppercase mb-2">
+                                <b style="color:black;">Gender Distribution</b>
+                            </div>
+                            <div class="h5 mb-3 font-weight-bold text-black">
+                                Male: @ViewBag.MalePercentage% / Female: @ViewBag.FemalePercentage%
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <canvas id="genderPieChart" style="max-width: 100%; height: auto;"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const malePercentage = parseFloat('@ViewBag.MalePercentage') || 0;
+        const femalePercentage = parseFloat('@ViewBag.FemalePercentage') || 0;
+
+        const ctx = document.getElementById('genderPieChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: ['Male', 'Female'],
+                datasets: [{
+                    data: [malePercentage, femalePercentage],
+                    backgroundColor: ['#3498db', '#e74c3c'],
+                    borderColor: '#fff',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            color: 'black'
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return `${context.label}: ${context.raw}%`;
+                            }
+                        }
+                    },
+                    title: {
+                        display: true,
+                        text: 'Male vs Female Farmers (%)',
+                        color: 'black'
+                    }
+                }
+            }
+        });
+    });
+</script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const toggler = document.querySelector('.navbar-toggler');
+        const sidebar = document.getElementById('left-sidebar');
+
+        if (toggler && sidebar) {
+            toggler.addEventListener('click', function () {
+                sidebar.classList.toggle('active');
+            });
+        }
+    });
+</script>

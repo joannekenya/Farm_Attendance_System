@@ -1,0 +1,418 @@
+﻿@model General
+
+@{
+    ViewData["Title"] = "Farmers Dashboard";
+    Layout = "~/Views/Shared/_Dashboard.cshtml";
+}
+<!DOCTYPE html>
+<html>
+
+<body>
+
+<div class="wrapper">
+    <div class="page-wrapper">
+        <div class="content">
+            <h4 class="fs-4">Farmers Management</h4>
+            <hr class="my-2" style="height:1px; background-color:black;" />
+
+            <div class="p-4 bg-white rounded shadow-sm">
+                <!-- Summary Statistics -->
+                <div class="row mb-4">
+                    <div class="col-md-3">
+                        <div class="card text-white bg-primary mb-3">
+                            <div class="card-body">
+                                <h5 class="card-title">Total Farmers</h5>
+                                <p class="card-text fs-4">@Model.Farmers.Count()</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card text-white bg-success mb-3">
+                            <div class="card-body">
+                                <h5 class="card-title">Female </h5>
+                                <p class="card-text fs-4">@Model.Farmers.Count(f => f.GENDER == "F")</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card text-white bg-info mb-3">
+                            <div class="card-body">
+                                <h5 class="card-title">Male </h5>
+                                <p class="card-text fs-4">@Model.Farmers.Count(f => f.GENDER == "M")</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card text-white bg-warning mb-3">
+                            <div class="card-body">
+                                <h5 class="card-title">Total Amount</h5>
+                                <p class="card-text fs-4">@Model.Farmers.Sum(f => f.AMOUNT).ToString("N2")</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="page-utilities mb-3">
+                    <div class="row g-2 justify-content-between align-items-center">
+                        <div class="col-md-4">
+                            <div class="input-group">
+                                <input type="text" id="searchInput" class="form-control" placeholder="Search farmers...">
+                                <button class="btn btn-outline-secondary" type="button" onclick="searchTable()">
+                                    <i class="fa fa-search"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-md-4 text-end">
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-primary" onclick="printData()">
+                                    <i class="fa fa-print"></i> Print
+                                </button>
+                                <button class="btn btn-success dropdown-toggle" type="button" id="exportDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fa fa-download"></i> Export
+                                </button>
+                                <ul class="dropdown-menu" aria-labelledby="exportDropdown">
+                                    <li><a class="dropdown-item" href="#" onclick="exportToExcel()"><i class="fa fa-file-excel"></i> Excel</a></li>
+                                    <li><a class="dropdown-item" href="#" onclick="exportToCSV()"><i class="fa fa-file-csv"></i> CSV</a></li>
+                                    <li><a class="dropdown-item" href="#" onclick="exportToPDF()"><i class="fa fa-file-pdf"></i> PDF</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <form asp-action="Index2" asp-controller="Farmers" class="mb-4">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group mb-2">
+                                        <label>Date From</label>
+                                        <input type="date" name="StartDate" class="form-control" />
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group mb-2">
+                                        <label>Date To</label>
+                                        <input type="date" name="EndDate" class="form-control" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group mb-2">
+                                <label>Gender</label>
+                                <select id="genderFilter" class="form-control" onchange="filterTable()">
+                                    <option value="">All Genders</option>
+                                    <option value="M">Male</option>
+                                    <option value="F">Female</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group mb-2">
+                                <label>FPO/Coop Group</label>
+                                <select id="groupFilter" class="form-control" onchange="filterTable()">
+                                    <option value="">All Groups</option>
+                                    @foreach (var group in Model.Farmers.Select(f => f.FPO_COOP_Group).Distinct().OrderBy(g => g))
+                                    {
+                                        <option value="@group">@group</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12 text-end">
+                            <button type="button" class="btn btn-secondary me-2" onclick="resetFilters()">
+                                <i class="fa fa-refresh"></i> Reset
+                            </button>
+                            <input type="submit" value="Search" class="btn btn-primary" />
+                        </div>
+                    </div>
+                </form>
+
+                <div class="table-responsive">
+                    <table id="farmersTable" class="table table-bordered table-striped table-hover">
+                        <thead class="table-primary">
+                            <tr>
+                                <th onclick="sortTable(0)">Farmer Name <i class="fa fa-sort"></i></th>
+                                <th onclick="sortTable(1)">Phone No <i class="fa fa-sort"></i></th>
+                                <th onclick="sortTable(2)">ID No <i class="fa fa-sort"></i></th>
+                                <th onclick="sortTable(3)">Gender <i class="fa fa-sort"></i></th>
+                                <th onclick="sortTable(4)">FPO/Coop Group <i class="fa fa-sort"></i></th>
+                                <th onclick="sortTable(5)">Amount <i class="fa fa-sort"></i></th>
+                                <th onclick="sortTable(6)">Age <i class="fa fa-sort"></i></th>
+                                <th>Venue</th>
+                                <th>County</th>
+                                <th>SubCounties</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.Farmers)
+                            {
+                                var countyName = !string.IsNullOrEmpty(item.County) ? item.County : "N/A";
+                                var subCountyName = !string.IsNullOrEmpty(item.SubCounties) ? item.SubCounties : "N/A";
+
+                                <tr>
+                                    <td>@item.FarmerName</td>
+                                    <td>@item.FPhoneNo</td>
+                                    <td>@item.IDNO</td>
+                                    <td>@(item.GENDER == "M" ? "Male" : "Female")</td>
+                                    <td>@item.FPO_COOP_Group</td>
+                                    <td>@item.AMOUNT.ToString("N2")</td>
+                                    <td>@item.AGE</td>
+                                    <td>@item.VENUE</td>
+                                    <td>@countyName</td>
+                                    <td>@subCountyName</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                <nav aria-label="Page navigation">
+                    <ul class="pagination justify-content-center mt-3">
+                        <li class="page-item disabled">
+                            <a class="page-link" href="#" tabindex="-1">Previous</a>
+                        </li>
+                        <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                        <li class="page-item"><a class="page-link" href="#">2</a></li>
+                        <li class="page-item"><a class="page-link" href="#">3</a></li>
+                        <li class="page-item">
+                            <a class="page-link" href="#">Next</a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+    <!-- Add these in your layout file's head or before your scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script>
+        // Current sort state
+        let currentSortColumn = -1;
+        let sortDirection = 1; // 1 for ascending, -1 for descending
+
+        function sortTable(columnIndex) {
+            const table = document.getElementById("farmersTable");
+            const tbody = table.querySelector("tbody");
+            const rows = Array.from(tbody.querySelectorAll("tr"));
+
+            // Toggle sort direction if clicking the same column
+            if (currentSortColumn === columnIndex) {
+                sortDirection *= -1;
+            } else {
+                currentSortColumn = columnIndex;
+                sortDirection = 1;
+            }
+
+            rows.sort((a, b) => {
+                const aValue = a.cells[columnIndex].textContent.trim();
+                const bValue = b.cells[columnIndex].textContent.trim();
+
+                // Numeric sorting for amount and age columns
+                if (columnIndex === 5 || columnIndex === 6) {
+                    return (parseFloat(aValue) - parseFloat(bValue)) * sortDirection;
+                }
+
+                // Default string comparison
+                return aValue.localeCompare(bValue) * sortDirection;
+            });
+
+            // Clear existing rows
+            while (tbody.firstChild) {
+                tbody.removeChild(tbody.firstChild);
+            }
+
+            // Add sorted rows
+            rows.forEach(row => tbody.appendChild(row));
+
+            // Update sort indicators
+            updateSortIndicators(columnIndex);
+        }
+
+        function updateSortIndicators(columnIndex) {
+            const headers = document.querySelectorAll("#farmersTable th");
+            headers.forEach((header, index) => {
+                header.innerHTML = header.innerHTML.replace(/<i class="fa fa-sort-(up|down)"><\/i>/g, '');
+                if (index === columnIndex) {
+                    const sortIcon = sortDirection === 1 ? 'fa-sort-up' : 'fa-sort-down';
+                    header.innerHTML += ` <i class="fa ${sortIcon}"></i>`;
+                } else {
+                    header.innerHTML += ` <i class="fa fa-sort"></i>`;
+                }
+            });
+        }
+
+        function filterTable() {
+            const genderFilter = document.getElementById("genderFilter").value.toLowerCase();
+            const groupFilter = document.getElementById("groupFilter").value.toLowerCase();
+            const searchText = document.getElementById("searchInput").value.toLowerCase();
+
+            const rows = document.querySelectorAll("#farmersTable tbody tr");
+
+            rows.forEach(row => {
+                const genderCell = row.cells[3].textContent.trim().toLowerCase();
+                const groupCell = row.cells[4].textContent.trim().toLowerCase();
+                const rowText = row.textContent.toLowerCase();
+
+                const genderMatch = !genderFilter || genderCell === genderFilter;
+                const groupMatch = !groupFilter || groupCell === groupFilter;
+                const searchMatch = !searchText || rowText.includes(searchText);
+
+                row.style.display = (genderMatch && groupMatch && searchMatch) ? "" : "none";
+            });
+        }
+
+        function searchTable() {
+            filterTable();
+        }
+
+        function resetFilters() {
+            document.getElementById("genderFilter").value = "";
+            document.getElementById("groupFilter").value = "";
+            document.getElementById("searchInput").value = "";
+            filterTable();
+        }
+
+        function exportToExcel() {
+            showLoading();
+            const table = document.getElementById("farmersTable");
+            const wb = XLSX.utils.table_to_book(table, { sheet: "Farmers" });
+            XLSX.writeFile(wb, `Farmers_${new Date().toISOString().slice(0,10)}.xlsx`);
+            hideLoading();
+        }
+
+        function exportToCSV() {
+            showLoading();
+            const table = document.getElementById("farmersTable");
+            const ws = XLSX.utils.table_to_sheet(table);
+            const csv = XLSX.utils.sheet_to_csv(ws);
+            const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = `Farmers_${new Date().toISOString().slice(0,10)}.csv`;
+            link.click();
+            hideLoading();
+        }
+
+        async function exportToPDF() {
+            showLoading();
+            try {
+                const { jsPDF } = window.jspdf;
+                const table = document.getElementById("farmersTable");
+                const canvas = await html2canvas(table);
+                const imgData = canvas.toDataURL("image/png");
+
+                const pdf = new jsPDF('landscape');
+                const pdfWidth = pdf.internal.pageSize.getWidth();
+                const imgProps = pdf.getImageProperties(imgData);
+                const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+
+                pdf.addImage(imgData, 'PNG', 10, 10, pdfWidth - 20, pdfHeight);
+                pdf.save(`Farmers_${new Date().toISOString().slice(0,10)}.pdf`);
+            } catch (error) {
+                alert("Error generating PDF: " + error.message);
+            } finally {
+                hideLoading();
+            }
+        }
+
+              function printData() {
+            const table = document.getElementById("farmersTable");
+            const rows = Array.from(table.querySelectorAll("tbody tr"));
+
+            // Get only the first 20 rows for page 1
+            const pageSize = 20;
+            const clonedTable = table.cloneNode(true);
+            const clonedRows = clonedTable.querySelectorAll("tbody tr");
+
+            clonedRows.forEach((row, index) => {
+                if (index >= pageSize) {
+                    row.remove();
+                }
+            });
+
+            const newWin = window.open("", "_blank");
+            newWin.document.write(`
+                <html>
+                    <head>
+                        <title>Farmers List - Page 1</title>
+                        <style>
+                            body { font-family: Arial, sans-serif; }
+                            table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+                            th { background-color: #f8f9fa; text-align: left; padding: 8px; border: 1px solid #ddd; }
+                            td { padding: 8px; border: 1px solid #ddd; }
+                            h1 { color: #333; text-align: center; }
+                            .print-header { margin-bottom: 20px; }
+                            .print-footer { margin-top: 20px; font-size: 12px; text-align: center; color: #666; }
+                        </style>
+                    </head>
+                    <body>
+                        <div class="print-header">
+                            <h1>Farmers List (Page 1)</h1>
+                            <p>Generated on: ${new Date().toLocaleString()}</p>
+                        </div>
+                        ${clonedTable.outerHTML}
+                        <div class="print-footer">
+                            <p>© ${new Date().getFullYear()} - Your Organization Name</p>
+                        </div>
+                    </body>
+                </html>
+            `);
+
+            newWin.document.close();
+            newWin.focus();
+            newWin.print();
+            newWin.close();
+        }
+
+        function showLoading() {
+            const loading = document.createElement("div");
+            loading.id = "loadingOverlay";
+            loading.style.position = "fixed";
+            loading.style.top = "0";
+            loading.style.left = "0";
+            loading.style.width = "100%";
+            loading.style.height = "100%";
+            loading.style.backgroundColor = "rgba(0,0,0,0.5)";
+            loading.style.zIndex = "9999";
+            loading.style.display = "flex";
+            loading.style.justifyContent = "center";
+            loading.style.alignItems = "center";
+            loading.innerHTML = `
+                <div class="spinner-border text-light" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <span class="text-light ms-3">Generating report...</span>
+            `;
+            document.body.appendChild(loading);
+        }
+
+        function hideLoading() {
+            const loading = document.getElementById("loadingOverlay");
+            if (loading) {
+                loading.remove();
+            }
+        }
+
+        // Initialize table sorting indicators
+        document.addEventListener("DOMContentLoaded", function() {
+            const headers = document.querySelectorAll("#farmersTable th");
+            headers.forEach(header => {
+                if (header.getAttribute('onclick')) {
+                    header.innerHTML += ` <i class="fa fa-sort"></i>`;
+                }
+            });
+        });
+    </script>
+}

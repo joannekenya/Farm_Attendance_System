@@ -1,0 +1,113 @@
+﻿@model General
+@using Microsoft.AspNetCore.Http
+
+
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Dashboard.cshtml";
+
+}
+@if (TempData["ImportErrors"] is List<string> errors && errors.Any())
+{
+    <div class="alert alert-warning">
+        <ul>
+            @foreach (var error in errors)
+            {
+                <li>@error</li>
+            }
+        </ul>
+    </div>
+}
+
+
+
+
+
+<div class="page-wrapper">
+    <div class="container-fluid">
+        <h4>Farmers Attended</h4>
+        <hr />
+        <form method="get" asp-action="Index" class="mb-3">
+            <div class="row">
+                <div class="col-md-4">
+                    <input type="text" name="searchName" class="form-control" placeholder="Search by FarmerName" value="@ViewBag.SearchName" />
+                </div>
+                <div class="col-md-4">
+                    <input type="text" name="searchIDNO" class="form-control" placeholder="Search by IDNO" value="@ViewBag.SearchIDNO" />
+                </div>
+                <div class="col-md-4">
+                    <button type="submit" class="btn btn-primary">Search</button>
+                </div>
+            </div>
+        </form>
+
+        <div class="table-responsive bg-white p-3 rounded">
+            <table id="productsTable" class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+
+                        
+                        <th>Farmer Name</th>
+                        <th>Phone No</th>
+                        <th>ID NO</th>
+                        <th>GENDER</th>
+                        <th>FPO/COOP Group</th>
+                        <th>AMOUNT</th>
+                        <th>AGE</th>
+                        <th>VENUE</th>
+                        <th>FIELD COORDINATOR</th>
+                        <th>County</th>
+                        <th>SubCounties</th>
+                        <th>AuditBy</th>
+                        <th style="width: 120px;">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.Farmers)
+                    {
+                        // Initialize with default "N/A"
+                        var countyName = "N/A";
+                        var subCountyName = "N/A";
+
+                        // Find the location by ID (not by sub_counties name)
+                        var location = Model.Locations.FirstOrDefault(l => l.id.ToString() == item.SubCounties);
+
+                        if (location != null)
+                        {
+                            countyName = location.county_name;
+                            subCountyName = location.sub_counties;
+                        }
+                        <tr>
+                            <td>@Html.DisplayFor(modelItem => item.FarmerName)</td>
+                            <td>@Html.DisplayFor(modelItem => item.FPhoneNo)</td>
+                            <td>@Html.DisplayFor(modelItem => item.IDNO)</td>
+                            <td>@Html.DisplayFor(modelItem => item.GENDER)</td>
+                            <td>@Html.DisplayFor(modelItem => item.FPO_COOP_Group)</td>
+                            <td>@Html.DisplayFor(modelItem => item.AMOUNT)</td>
+                            <td>@Html.DisplayFor(modelItem => item.AGE)</td>
+                            <td>@Html.DisplayFor(modelItem => item.VENUE)</td>
+                            <td>@Html.DisplayFor(modelItem => item.County)</td>
+                            <td>@Html.DisplayFor(modelItem => item.SubCounties)</td>
+ <td>@Html.DisplayFor(modelItem => item.FIELDCOORDINATOR)</td>
+                            <td>@Html.DisplayFor(modelItem => item.AuditBy)</td>
+                            <td>
+                                <a asp-action="Edit" asp-route-id="@item.FarmerId" class="btn btn-sm btn-primary">Edit</a>
+                                <a asp-action="Edit" asp-route-id="@item.FarmerId" class="btn btn-sm btn-primary">View</a>
+                                <a asp-action="Edit" asp-route-id="@item.FarmerId" class="btn btn-sm btn-primary">Delete</a>
+
+
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
